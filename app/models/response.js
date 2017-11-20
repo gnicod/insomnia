@@ -26,9 +26,14 @@ export type ResponseTimelineEntry = {
   value: string
 }
 
+export type TestResult = {
+  name: string
+}
+
 type BaseResponse = {
   statusCode: number,
   statusMessage: string,
+  testResults: Array<string>,
   httpVersion: string,
   contentType: string,
   url: string,
@@ -52,6 +57,7 @@ export function init (): BaseResponse {
   return {
     statusCode: 0,
     statusMessage: '',
+    testResults: [],
     httpVersion: '',
     contentType: '',
     url: '',

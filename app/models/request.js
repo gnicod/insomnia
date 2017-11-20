@@ -54,6 +54,7 @@ type BaseRequest = {
   headers: Array<RequestHeader>,
   authentication: RequestAuthentication,
   metaSortKey: number,
+  testScript: string,
 
   // Settings
   settingStoreCookies: boolean,
@@ -75,6 +76,7 @@ export function init (): BaseRequest {
     headers: [],
     authentication: {},
     metaSortKey: -1 * Date.now(),
+    testScript: 'console.log("test")',
 
     // Settings
     settingStoreCookies: true,
@@ -235,6 +237,7 @@ export function findByParentId (parentId: string): Promise<Array<Request>> {
 }
 
 export function update (request: Request, patch: Object): Promise<Request> {
+  console.log('patch', patch);
   return db.docUpdate(request, patch);
 }
 

@@ -118,6 +118,8 @@ type State = {
 };
 
 const rUpdate = (request, ...args) => {
+  console.log(request);
+  console.log(args);
   if (!request) {
     throw new Error('Tried to update null request');
   }
@@ -165,6 +167,11 @@ class Wrapper extends React.PureComponent<Props, State> {
 
   _handleUpdateRequestHeaders (headers: Array<RequestHeader>): Promise<Request> {
     return rUpdate(this.props.activeRequest, {headers});
+  }
+
+  _handleUpdateRequestTestScript (testScript: string): Promise<Request> {
+    console.log('testScript', testScript);
+    return rUpdate(this.props.activeRequest, {testScript});
   }
 
   _handleForceUpdateRequestHeaders (headers: Array<RequestHeader>): Promise<Request> {
@@ -608,6 +615,7 @@ class Wrapper extends React.PureComponent<Props, State> {
             updateRequestParameters={this._handleUpdateRequestParameters}
             updateRequestAuthentication={this._handleUpdateRequestAuthentication}
             updateRequestHeaders={this._handleUpdateRequestHeaders}
+            updateRequestTestScript={this._handleUpdateRequestTestScript}
             updateRequestMimeType={this._handleUpdateRequestMimeType}
             updateSettingsShowPasswords={this._handleUpdateSettingsShowPasswords}
             updateSettingsUseBulkHeaderEditor={this._handleUpdateSettingsUseBulkHeaderEditor}

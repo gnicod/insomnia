@@ -10,6 +10,7 @@ import ContentTypeDropdown from './dropdowns/content-type-dropdown';
 import AuthDropdown from './dropdowns/auth-dropdown';
 import KeyValueEditor from './key-value-editor/editor';
 import RequestHeadersEditor from './editors/request-headers-editor';
+import TestScriptEditor from './editors/request-postscript-editor';
 import RenderedQueryString from './rendered-query-string';
 import BodyEditor from './editors/body/body-editor';
 import AuthWrapper from './editors/auth/auth-wrapper';
@@ -44,6 +45,7 @@ type Props = {
   updateRequestAuthentication: Function,
   updateRequestHeaders: Function,
   updateRequestMimeType: Function,
+  updateRequestTestScript: Function,
   updateSettingsShowPasswords: Function,
   updateSettingsUseBulkHeaderEditor: Function,
   handleImport: Function,
@@ -187,6 +189,7 @@ class RequestPane extends React.PureComponent<Props> {
       updateRequestAuthentication,
       updateRequestBody,
       updateRequestHeaders,
+      updateRequestTestScript,
       updateRequestMethod,
       updateRequestMimeType,
       updateRequestParameters,
@@ -313,6 +316,12 @@ class RequestPane extends React.PureComponent<Props> {
                     <i className="fa fa--skinny fa-check txt-xxs"/>
                   </span>
                 )}
+              </button>
+            </Tab>
+            <Tab>
+              <button>
+                Test
+                {numHeaders > 0 && <span className="bubble space-left">{numHeaders}</span>}
               </button>
             </Tab>
           </TabList>
@@ -449,6 +458,13 @@ class RequestPane extends React.PureComponent<Props> {
                 </p>
               </div>
             )}
+          </TabPanel>
+          <TabPanel className="react-tabs__tab-panel header-test">
+            <h1><center>Test</center></h1>
+            <TestScriptEditor
+                onChange={updateRequestTestScript}
+                testScript={request.testScript}
+            />
           </TabPanel>
         </Tabs>
       </section>

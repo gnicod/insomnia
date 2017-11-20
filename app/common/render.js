@@ -280,6 +280,7 @@ export async function getRenderedRequest (
     created: renderedRequest.created,
     modified: renderedRequest.modified,
     description: renderedRequest.description,
+    testScript: renderedRequest.testScript,
     headers: renderedRequest.headers,
     metaSortKey: renderedRequest.metaSortKey,
     method: renderedRequest.method,

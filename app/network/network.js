@@ -1,5 +1,5 @@
 // @flow
-import type {ResponseHeader, ResponseTimelineEntry} from '../models/response';
+import type {ResponseHeader, ResponseTimelineEntry, ResponseTestResult} from '../models/response';
 import type {Request, RequestHeader} from '../models/request';
 import type {Workspace} from '../models/workspace';
 import type {Settings} from '../models/settings';
@@ -28,6 +28,7 @@ import {buildMultipart} from './multipart';
 
 export type ResponsePatch = {
   statusMessage?: string,
+  testResults: Array<string>,
   error?: string,
   url?: string,
   statusCode?: number,
@@ -65,6 +66,37 @@ export function _actuallySend (
     // Initialize the curl handle
     const curl = new Curl();
 
+    function getTestsResults (response, bodyBuffer): Array<ResponseTestResult> {
+      let chai = require('chai');
+      let should = chai.should();
+      console.log('response', response);
+
+        // TODO sucks if xml
+      const body = JSON.parse(bodyBuffer.toString());
+
+      console.log('gettestresult');
+      console.log(renderedRequest.testScript);
+      const testScript = renderedRequest.testScript;
+
+      const chaiScript = `
+        try {
+                ${testScript}
+                /*
+                body.should.be.a('object');
+                body.should.have.deep.property('YourFuckingLocation', 'France');
+            */
+        }
+        catch(err) {
+            console.log(err)
+        }
+        `;
+      const testFN = new Function('chai', 'should', 'body', chaiScript);
+      testFN(chai, should, body, chaiScript);
+
+        // eval(renderedRequest.testScript);
+      return [{name: 'lol'}];
+    }
+
     /** Helper function to respond with a success */
     function respond (patch: ResponsePatch, bodyBuffer: ?Buffer = null): void {
       const response = Object.assign(({
@@ -79,6 +111,7 @@ export function _actuallySend (
       // Apply plugin hooks and don't wait for them and don't throw from them
       process.nextTick(async () => {
         try {
+          await getTestsResults(response, bodyBuffer);
           await _applyResponsePluginHooks(response, bodyBuffer);
         } catch (err) {
           // TODO: Better error handling here
@@ -612,6 +645,8 @@ export function _actuallySend (
         // Handle the body
         const bodyBuffer = Buffer.concat(dataBuffers, dataBuffersLength);
 
+        const testResults = ['ok'];
+
         // Return the response data
         const responsePatch = {
           headers,
@@ -619,6 +654,7 @@ export function _actuallySend (
           statusCode,
           httpVersion,
           statusMessage,
+          testResults,
           elapsedTime: curl.getInfo(Curl.info.TOTAL_TIME) * 1000,
           bytesRead: curl.getInfo(Curl.info.SIZE_DOWNLOAD),
           bytesContent: bodyBuffer.length,
