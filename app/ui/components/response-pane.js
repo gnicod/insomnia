@@ -19,6 +19,7 @@ import ResponseTimer from './response-timer';
 import ResponseTimelineViewer from './viewers/response-timeline-viewer';
 import ResponseHeadersViewer from './viewers/response-headers-viewer';
 import ResponseCookiesViewer from './viewers/response-cookies-viewer';
+import ResponseTestsViewer from './viewers/response-tests-viewer';
 import * as models from '../../models';
 import {PREVIEW_MODE_SOURCE} from '../../common/constants';
 import {getSetCookieHeaders, nullFn} from '../../common/misc';
@@ -277,6 +278,9 @@ class ResponsePane extends React.PureComponent<Props> {
             <Tab>
               <Button>Timeline</Button>
             </Tab>
+            <Tab>
+              <Button>Tests</Button>
+            </Tab>
           </TabList>
           <TabPanel className="react-tabs__tab-panel">
             <ErrorBoundary key={response._id} errorClassName="font-error pad text-center">
@@ -327,6 +331,13 @@ class ResponsePane extends React.PureComponent<Props> {
                 editorLineWrapping={editorLineWrapping}
                 editorFontSize={editorFontSize}
                 editorIndentSize={editorIndentSize}
+              />
+            </ErrorBoundary>
+          </TabPanel>
+          <TabPanel className="react-tabs__tab-panel">
+            <ErrorBoundary key={response._id} errorClassName="font-error pad text-center">
+              <ResponseTestsViewer
+                testResults={response.testResults || []}
               />
             </ErrorBoundary>
           </TabPanel>
