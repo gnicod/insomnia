@@ -25,6 +25,7 @@ import {cookiesFromJar, jarFromCookies} from '../common/cookies';
 import {urlMatchesCertHost} from './url-matches-cert-host';
 import aws4 from 'aws4';
 import {buildMultipart} from './multipart';
+import {getTestsResults} from '../common/test';
 
 export type ResponsePatch = {
   statusMessage?: string,
@@ -66,52 +67,27 @@ export function _actuallySend (
     // Initialize the curl handle
     const curl = new Curl();
 
-    function getTestsResults (response, bodyBuffer): Array<ResponseTestResult> {
-      let chai = require('chai');
-      let should = chai.should();
-      console.log('response', response);
-
-        // TODO sucks if xml
-      const body = JSON.parse(bodyBuffer.toString());
-
-      console.log('gettestresult');
-      console.log(renderedRequest.testScript);
-      const testScript = renderedRequest.testScript;
-
-      const chaiScript = `
-        try {
-                ${testScript}
-                /*
-                body.should.be.a('object');
-                body.should.have.deep.property('YourFuckingLocation', 'France');
-            */
-        }
-        catch(err) {
-            console.log(err)
-        }
-        `;
-      const testFN = new Function('chai', 'should', 'body', chaiScript);
-      testFN(chai, should, body, chaiScript);
-
-        // eval(renderedRequest.testScript);
-      return [{name: 'lol'}];
-    }
-
     /** Helper function to respond with a success */
     function respond (patch: ResponsePatch, bodyBuffer: ?Buffer = null): void {
-      const response = Object.assign(({
+      let response = Object.assign(({
         parentId: renderedRequest._id,
         timeline: timeline,
         settingSendCookies: renderedRequest.settingSendCookies,
         settingStoreCookies: renderedRequest.settingStoreCookies
       }: ResponsePatch), patch);
 
+      const testResults = getTestsResults(renderedRequest, response, bodyBuffer);
+      console.log(testResults);
+
+      let responseWithResults = Object.assign({}, response);
+      response.testResults = testResults;
+      console.log('responseresulte', response);
+
       resolve({bodyBuffer, response});
 
       // Apply plugin hooks and don't wait for them and don't throw from them
       process.nextTick(async () => {
         try {
-          await getTestsResults(response, bodyBuffer);
           await _applyResponsePluginHooks(response, bodyBuffer);
         } catch (err) {
           // TODO: Better error handling here
